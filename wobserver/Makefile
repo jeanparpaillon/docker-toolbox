@@ -1,4 +1,4 @@
-src_dir=./src
+src_dir=./upstream
 src_local=$(src_dir)/.git/config
 
 scm_url=https://github.com/shinyscorpion/wobserver
@@ -10,6 +10,12 @@ repo=wobserver
 all: image
 
 image: src-local
+	docker build -t $(repo):$(scm_ref) -t $(repo):latest .
+
+push: image
+	docker tag $(repo):$(scm_ref) $(registry)/$(repo):$(scm_ref)
+	docker tag $(repo):$(scm_ref) $(registry)/$(repo):latest
+	docker push $(registry)/$(repo):latest
 
 src-local: $(src_local)
 	$(MAKE) src-update
@@ -22,4 +28,4 @@ src-update:
 $(src_local):
 	git clone --no-checkout $(scm_url) $(src_dir)
 
-.PHONY: all image src-local src-update
+.PHONY: all image push src-local src-update
